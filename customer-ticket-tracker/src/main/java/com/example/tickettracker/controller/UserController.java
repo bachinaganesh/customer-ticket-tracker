@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.tickettracker.exceptions.NotFoundException;
 import com.example.tickettracker.models.Role;
 import com.example.tickettracker.models.User;
-import com.example.tickettracker.repository.UserRepository;
 import com.example.tickettracker.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,13 +26,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Slf4j
 public class UserController {
 
-    private final UserRepository userRepository;
 
     private UserService userService;
 
-    public UserController(UserService userService, UserRepository userRepository) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userRepository = userRepository;
     }
 
     @PostMapping("/users")

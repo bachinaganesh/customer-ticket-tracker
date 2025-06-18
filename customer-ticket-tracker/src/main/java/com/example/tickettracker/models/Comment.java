@@ -21,6 +21,6 @@ public class Comment {
     private LocalDateTime createdAt;
 
     // This is comment class a ticket can have lot of comments
-    // comment can be created a customer of this ticker or agent of this ticket others won't all for this
+    // comment can be created a customer of this ticket or agent of this ticket others won't all for this
     
 }
