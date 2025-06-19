@@ -20,6 +20,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -156,4 +157,49 @@ public class TicketController {
     }
     
     
+    @DeleteMapping("/admins/tickets/{ticketId}")
+    public ResponseEntity<String> deleteTicketById(@PathVariable String ticketId, @RequestParam String adminId) {
+
+        this.userService.getAdminById(adminId).orElseThrow(() -> new NotFoundException("User not found with a role of 'ADMIN' and id: "+adminId));
+
+        Ticket ticket = this.ticketService.getTicketById(ticketId).orElseThrow(() -> new NotFoundException("Ticket not found with an id: "+ticketId));
+        
+        // check ticket status if closed or not. If it is "closed" then only i can delete it otherwise delete can't happen.
+
+        String message;
+
+        if(ticket.getStatus() == Status.CLOSED) {
+            message = "Ticket with an id: "+ticketId+" is deleted successfully!";
+            log.info(message);
+            this.ticketService.deleteTicketById(ticketId);
+        }
+        else {
+            message = "Ticket with an id: "+ticketId+" isn't in closed status!";
+            log.info(message);
+            
+        }
+        return ResponseEntity.ok(message);
+    }
+
+    @PatchMapping("/admins/tickets/{ticketId}/status")
+    public ResponseEntity<Ticket> updateTicketStatus(@PathVariable String ticketId, @RequestParam String adminId, Status status) {
+        // update the status of the ticket
+        /**
+         * Rules to follow while updating
+         * Status can move forward update like OPEN->IN_PROGRESS->CLOSED
+         * Status can't move backward update like IN_PROGRESS->OPEN (OR) CLOSED->OPEN,IN_PROGRESS
+         * Only admin role users can update the status of the ticket
+         */
+
+        //  verify admin or not
+        this.userService.getAdminById(adminId).orElseThrow(() -> new NotFoundException("User not found with a role of 'ADMIN' and id: "+adminId));
+
+        // get the ticket
+        Ticket ticket = this.ticketService.getTicketById(ticketId).orElseThrow(() -> new NotFoundException("Ticket not found with an id: "+ticketId));
+
+        // update the status of the ticket
+        Ticket updatedTicket = this.ticketService.updateTicket(ticket, status);
+        log.info("Status "+status+" updated and return the updated ticket and id: "+updatedTicket.getTicketId());
+        return ResponseEntity.ok(updatedTicket);
+    }
 }

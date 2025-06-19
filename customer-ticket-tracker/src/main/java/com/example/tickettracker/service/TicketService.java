@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.tickettracker.exceptions.InvalidUpdationException;
 import com.example.tickettracker.models.Status;
 import com.example.tickettracker.models.Ticket;
 import com.example.tickettracker.repository.TicketRepository;
@@ -61,5 +62,28 @@ public class TicketService {
         List<Ticket> tickets = this.ticketRepository.findByStatus(status);
         log.info("Tickets fetched from db!");
         return tickets;
+    }
+
+    public void deleteTicketById(String ticketId) {
+        this.ticketRepository.deleteById(ticketId);
+    }
+
+    public Ticket updateTicket(Ticket ticket, Status status) {
+        int currentStatusIndex = ticket.getStatus().ordinal();
+        int updatedStatusIndex = status.ordinal();
+        if(updatedStatusIndex < currentStatusIndex) {
+            // throw an exception invalid status update
+            log.info("status "+status+" updation failure of ticket id: "+ticket.getTicketId());
+            throw new InvalidUpdationException("Status updation failure!");
+        } 
+        else {
+            // update the status
+            log.info("Set the status "+status+" to the ticket id: "+ticket.getTicketId());
+            ticket.setStatus(status);
+        }
+        // save to repo
+        log.info("updated ticket "+ticket.getAgentId()+" into database!");
+        return this.ticketRepository.save(ticket);
+
     }
 }

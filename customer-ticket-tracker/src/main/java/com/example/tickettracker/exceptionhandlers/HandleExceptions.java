@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.example.tickettracker.exceptions.AssignedException;
+import com.example.tickettracker.exceptions.InvalidUpdationException;
 import com.example.tickettracker.exceptions.InvalidValueException;
 import com.example.tickettracker.exceptions.NotFoundException;
 import com.example.tickettracker.responses.ResponseError;
@@ -30,6 +31,12 @@ public class HandleExceptions {
 
     @ExceptionHandler(AssignedException.class)
     public ResponseEntity<ResponseError> handleAssignedException(AssignedException ex) {
+        ResponseError error = new ResponseError(ex.getMessage());
+        return ResponseEntity.ok(error);
+    }
+
+    @ExceptionHandler(InvalidUpdationException.class)
+    public ResponseEntity<ResponseError> handleInvalidUpdateException(InvalidUpdationException ex) {
         ResponseError error = new ResponseError(ex.getMessage());
         return ResponseEntity.ok(error);
     }
