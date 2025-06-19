@@ -8,8 +8,8 @@ import com.example.tickettracker.exceptions.AssignedException;
 import com.example.tickettracker.exceptions.InvalidValueException;
 import com.example.tickettracker.exceptions.NotFoundException;
 import com.example.tickettracker.models.Role;
+import com.example.tickettracker.models.Status;
 import com.example.tickettracker.models.Ticket;
-import com.example.tickettracker.models.User;
 import com.example.tickettracker.service.TicketService;
 import com.example.tickettracker.service.UserService;
 
@@ -99,5 +99,61 @@ public class TicketController {
         return ResponseEntity.ok(updatedTicket);
 
     }
+
+    @GetMapping("/admins/tickets/assign")
+    public ResponseEntity<List<Ticket>> getAllAgentAssignedTickets(@RequestParam String adminId) {
+        // get the all the tickets which is assigned by agent 
+        // tickets can get only the use has "ADMIN Role"
+
+        this.userService.getAdminById(adminId).orElseThrow(()-> new NotFoundException("User not found with role 'ADMIN' and id: "+adminId));
+
+        log.info("Admin "+adminId+" finding getting all agent assigned tickets");
+        List<Ticket> tickets = this.ticketService.getAgentAssignedTickets();
+
+        if(tickets.isEmpty()) {
+            log.info("No tickets found which is assigned by agents!");
+        }
+        else {
+            log.info("Tickets found which is assigned by agent");
+        }
+        return ResponseEntity.ok(tickets);
+    }
+
+    @GetMapping("/admins/tickets/unassign")
+    public ResponseEntity<List<Ticket>> getAllAgentUnAssignedTickets(@RequestParam String adminId) {
+        // get the all the tickets which is not assigned by agent 
+        // tickets can get only the use has "ADMIN Role"
+
+        this.userService.getAdminById(adminId).orElseThrow(()-> new NotFoundException("User not found with role 'ADMIN' and id: "+adminId));
+
+        log.info("Admin "+adminId+" finding getting all agent not assigned tickets");
+        List<Ticket> tickets = this.ticketService.getAgentUnAssignedTickets();
+
+        if(tickets.isEmpty()) {
+            log.info("No tickets found which is not assigned by agents!");
+        }
+        else {
+            log.info("Tickets found which is not assigned by agent");
+        }
+        return ResponseEntity.ok(tickets);
+    }
+    
+    @GetMapping("/admins/tickets/status")
+    public ResponseEntity<List<Ticket>> getTicketsByStatus(@RequestParam String adminId, @RequestParam Status status) {
+        // get the tickets which is respective to the status that is sent
+        // only admins can get the tickets 
+
+        this.userService.getAdminById(adminId).orElseThrow(()-> new NotFoundException("User not found with role 'ADMIN' and id: "+adminId));
+        
+        List<Ticket> tickets = this.ticketService.getTicketsByStatus(status);
+        if(tickets.isEmpty()) {
+            log.info("No tickets found with status "+status);
+        }
+        else {
+            log.info("Tickets found with status "+status);
+        }
+        return ResponseEntity.ok(tickets);
+    }
+    
     
 }

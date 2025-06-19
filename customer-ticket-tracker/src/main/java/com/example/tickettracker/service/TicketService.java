@@ -44,4 +44,22 @@ public class TicketService {
         log.info("Agend id is assigned to ticket: "+ticket.getTicketId());
         return this.ticketRepository.save(ticket);
     }
+
+    public List<Ticket> getAgentAssignedTickets() {
+        List<Ticket> tickets = this.ticketRepository.findByAgentIdNotNull();
+        log.info("Tickets fetched from db!");
+        return tickets;
+    }
+
+    public List<Ticket> getAgentUnAssignedTickets() {
+        List<Ticket> tickets = this.ticketRepository.findByAgentIdNull();
+        log.info("Tickets fetched from db!");
+        return tickets;
+    }
+
+    public List<Ticket> getTicketsByStatus(Status status) {
+        List<Ticket> tickets = this.ticketRepository.findByStatus(status);
+        log.info("Tickets fetched from db!");
+        return tickets;
+    }
 }
